@@ -1,0 +1,257 @@
+### Login — dapatkan token
+### Focus Timer API Testing
+### Base URL: https://smjb.test
+### 
+### Cara menggunakan:
+### 1. Jalankan request "Login" dulu untuk dapat token
+### 2. Copy token yang dihasilkan
+### 3. Ganti @token di bawah dengan token yang didapat
+### 4. Jalankan request lainnya
+
+@baseUrl = https://smjb.test
+#token admin(user_id=1)
+@token = 2|ZPu4sZnrT3mCRJEM3U0hsvBDHbglGg1mg3PqfB6Kf69d1bed
+#token siswa(user_id=2)
+@token = 3|ubNioDrF5tqAeCVHMCm8LkoVsRVqohlbWGcYJkwTf5c41e66
+
+###############################################
+# AUTHENTICATION
+###############################################
+
+### Login sebagai Admin
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@admin.com",
+  "password": "password"
+}
+
+### Login sebagai Siswa
+# @name loginSiswa
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "siswa@admin.com",
+  "password": "password"
+}
+
+### Logout
+POST {{baseUrl}}/api/auth/logout
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+###############################################
+# TASKS (Tugas)
+###############################################
+
+### List semua tugas
+GET {{baseUrl}}/api/admin/tasks
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### List tugas dengan filter (hanya yang belum selesai)
+GET {{baseUrl}}/api/admin/tasks?filter[is_completed]=false
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### List tugas dengan sorting (terbaru dulu)
+GET {{baseUrl}}/api/admin/tasks?sort=-created_at
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Detail tugas berdasarkan ID
+GET {{baseUrl}}/api/admin/tasks
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Tambah tugas baru
+POST {{baseUrl}}/api/admin/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Belajar Laravel API",
+  "description": "Mempelajari cara membuat REST API dengan Laravel",
+  "material_link": "https://youtube.com/watch?v=example",
+  "focus_minutes": 3,
+  "user_id": 2
+}
+
+### Tambah tugas kedua
+POST {{baseUrl}}/api/admin/tasks
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Mengerjakan Project Focus Timer",
+  "description": "Menyelesaikan fitur focus timer",
+  "material_link": "https://github.com/example",
+  "focus_minutes": 10,
+  "user_id": 2
+}
+
+### Update tugas (tandai selesai)
+PUT {{baseUrl}}/api/admin/tasks/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "is_completed": true,
+  "completed_at": "2026-05-12 10:00:00"
+}
+
+### Update tugas (edit judul)
+PUT {{baseUrl}}/api/admin/tasks/7
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "title": "Mengerjakan Project Focus Timer",
+  "focus_minutes": 40
+}
+
+### Hapus tugas
+DELETE {{baseUrl}}/api/admin/tasks/5
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###############################################
+# FOCUS SESSIONS (Sesi Fokus)
+###############################################
+
+### List semua sesi fokus
+GET {{baseUrl}}/api/admin/focus-sessions
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### List sesi fokus untuk user tertentu
+GET {{baseUrl}}/api/admin/focus-sessions?filter[user_id]=2
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Detail sesi fokus
+GET {{baseUrl}}/api/admin/focus-sessions/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Mulai sesi fokus baru
+POST {{baseUrl}}/api/admin/focus-sessions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "task_id": 1,
+  "user_id": 2,
+  "started_at": "2026-05-13T14:00:00",
+  "duration_target": 120
+}
+
+### Selesaikan sesi fokus (update ended_at)
+PUT {{baseUrl}}/api/admin/focus-sessions/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "ended_at": "2026-05-13T14:02:00",
+  "duration_actual": 120,
+  "is_completed": true,
+  "is_cancelled": false
+}
+
+### Hapus sesi fokus
+DELETE {{baseUrl}}/api/admin/focus-sessions/2
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###############################################
+# REMINDERS (Pengingat)
+###############################################
+
+### List semua reminder
+GET {{baseUrl}}/api/admin/reminders
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### List reminder yang belum terkirim
+GET {{baseUrl}}/api/admin/reminders?filter[is_sent]=false
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Detail reminder
+GET {{baseUrl}}/api/admin/reminders/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Tambah reminder baru
+POST {{baseUrl}}/api/admin/reminders
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "user_id": 2,
+  "task_id": 1,
+  "title": "Reminder: Kerjakan Project Focus Timer",
+  "remind_at": "2026-05-13T14:00:00",
+  "type": "task",
+  "is_sent": false,
+  "sent_at": null
+}
+
+### Tandai reminder sudah terkirim
+PUT {{baseUrl}}/api/admin/reminders/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+Accept: application/json
+
+{
+  "is_sent": true,
+  "sent_at": "2026-05-13T14:00:00"
+}
+
+### Hapus reminder
+DELETE {{baseUrl}}/api/admin/reminders/1
+Authorization: Bearer {{token}}
+Accept: application/json
+
+###############################################
+# NOTIFICATIONS (Notifikasi)
+###############################################
+
+### List notifikasi belum dibaca
+GET {{baseUrl}}/api/notifications/unread
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Tandai notifikasi sudah dibaca
+POST {{baseUrl}}/api/notifications/7/read
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+### Tandai semua notifikasi sudah dibaca
+POST {{baseUrl}}/api/notifications/read-all
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+###############################################
+# STATISTIK
+###############################################
+
+### Ambil statistik fokus
+GET {{baseUrl}}/api/focus/stats
+Authorization: Bearer {{token}}
+Accept: application/json
+
+### Riwayat sesi fokus
+GET {{baseUrl}}/api/focus/history
+Authorization: Bearer {{token}}
+Accept: application/json

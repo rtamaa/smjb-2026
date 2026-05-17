@@ -2,68 +2,61 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Filament\Models\Contracts\FilamentUser;
-use Filament\Models\Contracts\HasAvatar;
-use Filament\Panel;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable implements FilamentUser, HasAvatar
+class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory,HasRoles, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-        'avatar_url',
-        'name',
-        'email',
-        'password',
+        'name', 'email', 'password', 'display_name', 'push_subscription', 'avatar_url',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'password', 'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'push_subscription' => 'array',
+    ];
+
+    public function tasks()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->hasMany(Task::class)->orderBy('sort_order');
     }
-
-    public function getFilamentAvatarUrl(): ?string
+    
+    public function focusSessions()
     {
-        if ($this->avatar_url) {
-            return asset('storage/' . $this->avatar_url);
-        } else {
-            $hash = md5(strtolower(trim($this->email)));
-
-            return 'https://www.gravatar.com/avatar/' . $hash . '?d=mp&r=g&s=250';
-        }
+        return $this->hasMany(FocusSession::class);
     }
-
-    public function canAccessPanel(Panel $panel): bool
+    
+    public function reminders()
     {
-        return true;
+        return $this->hasMany(Reminder::class);
+    }
+    
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class);
+    }
+    
+    public function getTodayFocusMinutesAttribute()
+    {
+        return (int) ($this->focusSessions()
+            ->whereDate('started_at', today())
+            ->where('is_completed', true)
+            ->sum('duration_actual') / 60);
+    }
+    
+    public function getTotalFocusMinutesAttribute()
+    {
+        return (int) ($this->focusSessions()
+            ->where('is_completed', true)
+            ->sum('duration_actual') / 60);
     }
 }

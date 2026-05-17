@@ -21,6 +21,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Joaopaulolndev\FilamentEditProfile\Pages\EditProfilePage;
+use Rupadana\ApiService\ApiServicePlugin;  // <-- TAMBAHKAN DI SINI (BERSAMA USE LAINNYA)
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -50,19 +51,19 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
             ->widgets([
                 \Awcodes\Overlook\Widgets\OverlookWidget::class,
+                \App\Filament\Admin\Widgets\StatsOverview::class, 
             ])
             ->navigationGroups([
                 NavigationGroup::make()
                     ->label('Administration'),
+                NavigationGroup::make()
+                    ->label('Monitoring'),
             ])
             ->userMenuItems([
                 'profile' => MenuItem::make()
                     ->label(fn () => auth()->user()->name)
                     ->url(fn (): string => EditProfilePage::getUrl())
                     ->icon('heroicon-m-user-circle'),
-                // 'profile' => \Filament\Navigation\MenuItem::make()
-                //     ->label(fn () => auth()->user()->name)
-                //     ->icon('heroicon-m-user-circle'),
             ])
             ->plugins([
                 \BezhanSalleh\FilamentShield\FilamentShieldPlugin::make()
@@ -105,6 +106,7 @@ class AdminPanelProvider extends PanelProvider
                     ->shouldShowSanctumTokens(false)
                     ->shouldShowBrowserSessionsForm()
                     ->shouldShowAvatarForm(),
+                    ApiServicePlugin::make(),  // <-- TAMBAHKAN DI SINI (DI DALAM ARRAY PLUGINS)
             ])
             ->resources([
                 config('filament-logger.activity_resource'),

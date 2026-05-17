@@ -2,20 +2,25 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Task;
+use Spatie\Permission\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
-    /**
-     * Seed the application's database.
-     */
     public function run(): void
     {
         $this->call([
-            RoleSeeder::class,
-            UserSeeder::class,
+            RoleSeeder::class,      // Buat roles & users
+            TaskSeeder::class,      // Buat tasks
+            ReminderSeeder::class,  // Buat reminders
         ]);
+        
+        $this->command->info('✅ SEMUA SEEDER SELESAI!');
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+        $this->command->info('Admin: admin@admin.com / password');
+        $this->command->info('Siswa: siswa@admin.com / password');
+        $this->command->info('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     }
 }

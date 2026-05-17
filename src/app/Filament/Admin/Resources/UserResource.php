@@ -126,6 +126,7 @@ class UserResource extends Resource
                 //
             ])
             ->actions([
+                //Impersonate::make()->redirectTo(route('dashboard')),
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
